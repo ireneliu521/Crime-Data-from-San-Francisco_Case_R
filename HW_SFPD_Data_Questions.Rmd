@@ -1,0 +1,89 @@
+---
+title: "Homework on SFPD Data"
+author: "Yun-Hui Liu"
+date: "4/22/2017"
+output: html_document
+---
+
+This homework requires you to analyze crime data from San Francisco, using exploratory data analysis (EDA). This is a **group** homework. 
+
+Q1: Read in the data using the **fread()** function in R. How many rows and columns of data do you have? The file is "SFPD_Incidents_from_January_2003.csv".
+```{r}
+library(data.table)
+SFPD<-fread("SFPD_Incidents_from_January_2003.csv")
+dim(SFPD)
+```
+
+Q2: How many different types of crime categories are there? Print them out. 
+```{r}
+length(unique(SFPD$Category))
+print(unique(SFPD$Category))
+```
+
+Q3: Plot the total incidence of crime over time by year using the **ggplot** package. Label the axes properly and make sure the plot is complete and looks good. 
+```{r}
+library(lubridate)
+SFPD$Cdate<-mdy(SFPD$Date)
+SFPD$Cyear<-year(SFPD$Cdate)
+SFPD$Count<-1
+df<-aggregate(Count~Cyear,SFPD,sum)
+
+library(ggplot2)
+ggplot(df,aes(x=Cyear,y=Count))+geom_line(colour="cornflowerblue",lwd=1)+ggtitle("Total Incidence of Crime by Year")+xlab("Year")+ylab("Number of Incidence")
+```
+
+Q4: Create a table to show the frequency of all crimes over time. This data frame should have one column per crime. Be careful to handle missing values as all crimes may not occur every year. Print out the top of this data frame. 
+```{r}
+library(plyr)
+x<-xtabs(~Cyear+Category,SFPD)
+head(x,n=15)
+df1<-as.data.frame.matrix(x)
+```
+
+Q5: Compute the correlations of all crimes and report top 10 pairs of crimes that are most correlated. 
+```{r}
+y<-cor(df1)
+dt<-as.data.table(as.table(y))
+correlation<-dt[order(N)]
+print(correlation[1463:1482,])
+```
+
+Q6: Plot all the crimes by year to see how they evolve. Choose any plot type you think will be the best visualization of the data. Make sure this is something readable and not a mess!
+```{r}
+sa<-stack(as.data.frame(df1))
+sa$year<-rep(seq_len(nrow(df1)),ncol(df1))
+qplot(year,values,data=sa,group=ind,colour=ind,geom="line",xlab="Year (2003-2017)",ylab="Number of Crimes")
+```
+
+Q7: Create a pie chart of all crimes (aggregate across all years). 
+```{r}
+df2<-aggregate(Count~Category,SFPD,sum)
+ggplot(df2,aes(x="",y=Count,fill=Category))+geom_bar(width=1,stat="identity")+coord_polar(theta="y")+theme_void()+ggtitle("Pie Chart of All Crimes")
+```
+
+Q8: Plot the total crimes by lattitude and longitude, for all combinations of police district and crime category, using a scatter plot. Make the scatter plot interactive using the **rbokeh** package. 
+```{r}
+library(rbokeh)
+colnames(SFPD)[10]<-"lng"
+colnames(SFPD)[11]<-"lat"
+data <- subset(SFPD, Category=='BRIBERY'|Category=='SUICIDE')
+gmap(lat=37.78,lng=-122.42,zoom=12,width=480,height=480,map_type="hybrid")%>% ly_points(lng,lat,data=data,col='red',hover=c(PdDistrict,Category))
+```
+Since if we use the whole data to plot on google map, the size of the HTML file will become too large, we used only two kinds of crimes in this graph. We only need to change the data=data to data=SFPD if we want the whole data plot.
+
+Q9: Using annual counts, how much of DRUG/NARCOTIC offences can you explain using the number of LIQOUR LAWS, PROSTITUTION, and WEAPON LAWS violations? 
+```{r}
+AnnualCounts<-as.data.frame.matrix(x)
+reg<-lm(AnnualCounts[,8]~AnnualCounts[,18]+AnnualCounts[,24]+AnnualCounts[,39])
+summary(reg)
+plot(residuals(reg))
+abline(h=0,col="gray")
+```
+
+The output of this regression indicates that WEAPON LAWS is not significant, since its p-value is larger than 0.05. The p-values of LIQOUR LAWS and PROSTITUTION shows that they are significant. However, when we look at the estimated values, we found that the value of intercept is much larger than the values of LIQOUR LAWS and PROSTITUTION, which indicates that if the number of these two crimes increase, the number of DRUG/NARCOTIC offences won't be affected too much.
+
+Q10: How would you show in one picture, which crimes occur together the most? 
+```{r}
+Tmost<-subset(SFPD,select=c("Category","Cdate","Cyear","Count"))
+ggplot(Tmost,aes(x=Cyear,y=Count,fill=Category))+geom_bar(stat="identity")+xlab("Year")+ylab("Number of Incidence")
+```
