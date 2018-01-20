@@ -85,7 +85,7 @@ library(ggplot2)
 ggplot(df,aes(x=Cyear,y=Count))+geom_line(colour="cornflowerblue",lwd=1)+ggtitle("Total Incidence of Crime by Year")+xlab("Year")+ylab("Number of Incidence")
 ```
 
-![](HW_SFPD_Data_Questions_files/figure-markdown_github/unnamed-chunk-3-1.png) <Please refer to the Total Incidence of Crime by Year chart>
+<Please refer to the Total Incidence of Crime by Year chart>
 
 4: Create a table to show the frequency of all crimes over time. Since all crimes may not occur every year, missing values need to be handled.
 
