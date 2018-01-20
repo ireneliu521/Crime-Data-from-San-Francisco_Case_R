@@ -1,4 +1,4 @@
-In this project, I will use exploratory data analysis (EDA) to analyze the crime data from San Francisco.
+In this case, I will use exploratory data analysis (EDA) to analyze the crime data from San Francisco.
 
 1: How many rows and columns of data do I have?
 
