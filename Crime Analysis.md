@@ -337,8 +337,7 @@ gmap(lat=37.78,lng=-122.42,zoom=12,width=480,height=480,map_type="hybrid")%>% ly
 
 <!--html_preserve-->
 
-If I use the whole data to plot on google map, the size of the HTML file will become too large. I used only two kinds of crimes in this graph.
-Please refer to the google map graph
+If I use the whole data to plot on google map, the size of the HTML file will become too large. I used only two kinds of crimes in this graph. Please refer to the google map graph.
 
 
 9: Using annual counts, how much of DRUG/NARCOTIC offences can I explain using the number of LIQOUR LAWS, PROSTITUTION, and WEAPON LAWS violations?
@@ -384,4 +383,4 @@ The output of this regression indicates that WEAPON LAWS is not significant, sin
 Tmost<-subset(SFPD,select=c("Category","Cdate","Cyear","Count"))
 ggplot(Tmost,aes(x=Cyear,y=Count,fill=Category))+geom_bar(stat="identity")+xlab("Year")+ylab("Number of Incidence")
 ```
-Please refer to the Number of Incidence of Each Crime by Year chart
+Please refer to the Number of Incidence of Each Crime by Year chart.
